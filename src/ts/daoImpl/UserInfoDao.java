@@ -28,40 +28,38 @@ public class UserInfoDao extends BaseDao<UserInfo, Integer> {
 	public void addUser(UserInfo userInfo){
 		save(userInfo);
 	}
+	public void updateUser(UserInfo userInfo){
+		update(userInfo);
+	}
 	public void deleteUser(UserInfo userInfo){
 		remove(userInfo);
 	}
 	public void deleteUserById(int uid){
 		removeById(uid);
 	}
-	public String getReceivePackage(int uid){
-		String receivePackageId = null;
-		List<UserInfo> list=new ArrayList<UserInfo>();
-		UserInfo ui=new UserInfo();
-		list=super.findBy("UID", true, Restrictions.sqlRestriction("UID= '"+ uid + "'"));
-		ui=list.get(0);
-		receivePackageId=ui.getReceivePackageID();
-		System.out.println(receivePackageId);
-		return receivePackageId;		
+	public String getReceivePackageId(int uid){
+		UserInfo ui = get(uid);
+		System.out.println(ui.getReceivePackageID());
+		return ui.getReceivePackageID();		
 	}
-	public String getDelivePackage(int uid){
-		String delivePackageId = null;
-		List<UserInfo> list=new ArrayList<UserInfo>();
-		UserInfo ui=new UserInfo();
-		list=super.findBy("UID", true, Restrictions.sqlRestriction("UID= '"+ uid + "'"));
-		ui=list.get(0);
-		delivePackageId=ui.getDelivePackageID();
-		System.out.println(delivePackageId);
-		return delivePackageId;		
+	public String getDelivePackageId(int uid){
+		UserInfo ui = get(uid);
+		System.out.println(ui.getDelivePackageID());
+		return ui.getDelivePackageID();	
 	}
-	public String getTransPackage(int uid){
-		String transPackageId = null;
-		List<UserInfo> list=new ArrayList<UserInfo>();
-		UserInfo ui=new UserInfo();
-		list=super.findBy("UID", true, Restrictions.sqlRestriction("UID= '"+ uid + "'"));
-		ui=list.get(0);
-		transPackageId=ui.getTransPackageID();
-		System.out.println(transPackageId);
-		return transPackageId;		
+	public String getTransPackageId(int uid){
+		UserInfo ui = get(uid);
+		System.out.println(ui.getTransPackageID());
+		return ui.getTransPackageID();
+	}
+	public String getDptId(int uid){
+		UserInfo ui = get(uid);
+		System.out.println(ui.getDptID());
+		return ui.getDptID();
+	}
+	public String getTel(int uid){
+		UserInfo ui = get(uid);
+		System.out.println(ui.getTelCode());
+		return ui.getTelCode();
 	}
 }

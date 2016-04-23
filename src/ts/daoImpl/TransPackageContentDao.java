@@ -6,6 +6,7 @@ import java.util.List;
 import org.hibernate.criterion.Restrictions;
 
 import ts.daoBase.BaseDao;
+import ts.model.ExpressSheet;
 import ts.model.TransPackage;
 import ts.model.TransPackageContent;
 /**
@@ -14,6 +15,7 @@ import ts.model.TransPackageContent;
  *
  */
 public class TransPackageContentDao extends BaseDao<TransPackageContent,Integer> {
+	private TransPackageDao transPackageDao;
 	public TransPackageContentDao(){
 		super(TransPackageContent.class);
 	}
@@ -24,6 +26,7 @@ public class TransPackageContentDao extends BaseDao<TransPackageContent,Integer>
 				Restrictions.sqlRestriction("ExpressID = '"+ expressId + "' and PackageID = '" + packageId +"'"));
 		if(list.size() == 0)
 			return null;
+		/*System.out .println(list.get(0));*/
 		return list.get(0);
 	}
 	public int getSn(String expressId, String packageId){
@@ -31,7 +34,8 @@ public class TransPackageContentDao extends BaseDao<TransPackageContent,Integer>
 		if(cn == null){
 			return 0;
 		}
-		return get(expressId,packageId).getSN();
+		//System.out.println(cn.getSN());
+		return cn.getSN();
 	}
 
 	public void delete(String expressId, String packageId){
@@ -45,33 +49,33 @@ public class TransPackageContentDao extends BaseDao<TransPackageContent,Integer>
 		save(transPackageContent);
 	}
 	
-	public List<String> getAllPackage(String expressId){		
-		List<TransPackageContent> list1=new ArrayList<TransPackageContent>();
-		List<String> li=new ArrayList<String>();
-		List<TransPackage> list2=new ArrayList<TransPackage>();
-		List<TransPackage> list3=new ArrayList<TransPackage>();
-		TransPackageDao tpd=new TransPackageDao();
-		list1=super.findBy("SN",true,Restrictions.sqlRestriction("ExpressID = '"+ expressId + "'"));
-		//System.out.println(list1);
-		for(TransPackageContent tp : list1)
-			list2.add(tp.getPkg());
-		//System.out.println(list2);
-		list3=tpd.sortTransPackage(list2, true);
-		//System.out.println(list3);
-		for(TransPackage tp : list3)
-			li.add(tp.getID());
-		/*System.out.println(li);*/
-		return li;		
+	public List<TransPackageContent> getListPackageContent(String expressId){
+		List<TransPackageContent> list=new ArrayList<TransPackageContent>();
+		list=super.findBy("SN",true,Restrictions.sqlRestriction("ExpressID = '"+ expressId + "'"));
+		//System.out.println(list);
+		return list ;		
 	}
-	public List<String> getAllExpressSheet(String packageId){
-		System.out.println(packageId);
+	
+	public List<String> getAllExpressSheetId(String packageId){
 		List<String> li=new ArrayList<String>();
 		List<TransPackageContent> list=new ArrayList<TransPackageContent>();
-		list=super.findBy("SN",true,Restrictions.sqlRestriction("PackageID = '"+ packageId + "'"));
-		System.out.println(li);
+		System.out.println(packageId);
+		list=findBy("SN",true,Restrictions.sqlRestriction("PackageID = '"+ packageId + "'"));
 		for(TransPackageContent pc: list)
 	       li.add(pc.getExpress().getID());
 		System.out.println(li);
 		return li;		
 	}
+	public List<ExpressSheet> getAllExpressSheet(String packageId){
+		List<TransPackageContent> list=new ArrayList<TransPackageContent>();
+		List<ExpressSheet> elist=new ArrayList<ExpressSheet>();
+		/*System.out.println(packageId);*/
+		list=super.findBy("SN",true,Restrictions.sqlRestriction("PackageID = '"+ packageId + "'"));
+		for(TransPackageContent pc: list)
+	       elist.add(pc.getExpress());
+		/*System.out.println(elist);*/
+		return elist;		
+	}
+
+	
 }

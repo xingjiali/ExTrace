@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.hibernate.criterion.Restrictions;
 
 import ts.daoBase.BaseDao;
@@ -18,14 +20,30 @@ import ts.model.TransPackageContent;
  */
 public class TransPackageDao extends BaseDao<TransPackage,String> {
 	private RegionDao regionDao;
-	public TransPackageDao(){
-		super(TransPackage.class);
+	private TransPackageContentDao transPackageContentDao;
+	private ExpressSheetDao expressSheetDao;
+	
+	public ExpressSheetDao getExpressSheetDao() {
+		return expressSheetDao;
 	}
+	public void setExpressSheetDao(ExpressSheetDao expressSheetDao) {
+		this.expressSheetDao = expressSheetDao;
+	}
+	public TransPackageContentDao getTransPackageContentDao() {
+		return transPackageContentDao;
+	}
+	public void setTransPackageContentDao(TransPackageContentDao transPackageContentDao) {
+		this.transPackageContentDao = transPackageContentDao;
+	}
+	
 	public RegionDao getRegionDao() {
 		return regionDao;
 	}
 	public void setRegionDao(RegionDao dao) {
 		this.regionDao = dao;
+	}
+	public TransPackageDao(){
+		super(TransPackage.class);
 	}
 	public String getDestination(String id){
 		TransPackage tspack = get(id);
@@ -39,12 +57,7 @@ public class TransPackageDao extends BaseDao<TransPackage,String> {
 	public void changeStatus(TransPackage tp){
 		update(tp);
 	}
-	/*public TransPackage getTransPackage(String PackageId){
-		TransPackage tp=new TransPackage();
-		tp=super.get(PackageId);
-		System.out.print(tp.getID());
-		return tp;
-	}*/
+	
 	public List<TransPackage> sortTransPackage(List<TransPackage> transPackage,boolean isAsc){
 		//System.out.println(transPackage);		
 		Comparator<TransPackage> comparator = new Comparator<TransPackage>(){
@@ -64,22 +77,41 @@ public class TransPackageDao extends BaseDao<TransPackage,String> {
 		/*System.out.println(transPackage);*/
 		return transPackage;		
 	}
+	public List<TransPackage> getAllPackage(String expressId){		
+		List<TransPackageContent> list1=new ArrayList<TransPackageContent>();
+		List<TransPackage> list2=new ArrayList<TransPackage>();
+		list1=transPackageContentDao.getListPackageContent(expressId);
+		//System.out.println(list1);
+		for( TransPackageContent tp : list1)
+			list2.add(tp.getPkg());
+		//System.out.println(list2.get(0));
+		list2=this.sortTransPackage(list2, true);
+		//System.out.println(list2);		
+		return list2;		
+	}
+	public List<String> getAllPackageId(String expressId){		
+		List<String> li=new ArrayList<String>();
+		List<TransPackage> list=new ArrayList<TransPackage>();
+		list=this.getAllPackage(expressId);
+		//System.out.println(list);
+		for(TransPackage tp : list)
+			li.add(tp.getID());
+		//System.out.println(li);
+		return li;		
+	}
+	
 	public void takeTransPackage(String transPackage1,String transPackage2){
-		TransPackageContent tpc=new TransPackageContent();
-		ExpressSheetDao esd=new ExpressSheetDao();
-		TransPackageDao tpd=new TransPackageDao();
-		TransPackageContentDao tpcd1= new TransPackageContentDao();
-		TransPackageContentDao tpcd2= new TransPackageContentDao();
+		TransPackageContent tpc=new TransPackageContent();		
 		List<String> list=new ArrayList<String>();
-		list=tpcd1.getAllExpressSheet(transPackage1);
+		list=transPackageContentDao.getAllExpressSheetId(transPackage1);
 		System.out.println(transPackage1);
 		System.out.println(list);
 		for(String pc:list)
 		{
-			tpc.setExpress(esd.get(pc));
-			tpc.setPkg(tpd.get(transPackage2));
+			tpc.setExpress(expressSheetDao.get(pc));
+			tpc.setPkg(this.get(transPackage2));
 			tpc.setStatus(3);
-			tpcd2.addTransPackageContent(tpc);
+			transPackageContentDao.addTransPackageContent(tpc);
 			System.out.println(tpc);
 		}
 	}
