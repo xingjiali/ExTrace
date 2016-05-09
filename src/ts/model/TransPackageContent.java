@@ -29,7 +29,7 @@ public class TransPackageContent implements Serializable {
 	private ExpressSheet express;
 	
 	@ManyToOne(targetEntity=TransPackage.class, fetch=FetchType.LAZY)	
-	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.LOCK})	
+	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.LOCK})
 	@JoinColumns({ @JoinColumn(name="PackageID", referencedColumnName="ID", nullable=false) })	
 	private TransPackage pkg;
 
@@ -63,7 +63,7 @@ public class TransPackageContent implements Serializable {
 	public TransPackage getPkg() {
 		return pkg;
 	}
-	
+
 	public void setStatus(int value) {
 		this.status = value;
 	}

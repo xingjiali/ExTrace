@@ -5,10 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.annotation.Resource;
-
-import org.hibernate.criterion.Restrictions;
-
 import ts.daoBase.BaseDao;
 import ts.model.ExpressSheet;
 import ts.model.TransPackage;
@@ -78,7 +74,7 @@ public class TransPackageDao extends BaseDao<TransPackage,String> {
 		return transPackage;		
 	}
 	public List<TransPackage> getAllPackage(String expressId){		
-		List<TransPackageContent> list1=new ArrayList<TransPackageContent>();
+		List<TransPackageContent> list1=null;
 		List<TransPackage> list2=new ArrayList<TransPackage>();
 		list1=transPackageContentDao.getListPackageContent(expressId);
 		//System.out.println(list1);
@@ -91,7 +87,7 @@ public class TransPackageDao extends BaseDao<TransPackage,String> {
 	}
 	public List<String> getAllPackageId(String expressId){		
 		List<String> li=new ArrayList<String>();
-		List<TransPackage> list=new ArrayList<TransPackage>();
+		List<TransPackage> list=null;
 		list=this.getAllPackage(expressId);
 		//System.out.println(list);
 		for(TransPackage tp : list)
@@ -101,18 +97,41 @@ public class TransPackageDao extends BaseDao<TransPackage,String> {
 	}
 	
 	public void takeTransPackage(String transPackage1,String transPackage2){
-		TransPackageContent tpc=new TransPackageContent();		
-		List<String> list=new ArrayList<String>();
+		List<String> list=null;
 		list=transPackageContentDao.getAllExpressSheetId(transPackage1);
 		System.out.println(transPackage1);
 		System.out.println(list);
 		for(String pc:list)
 		{
+			TransPackageContent tpc=new TransPackageContent();		
 			tpc.setExpress(expressSheetDao.get(pc));
 			tpc.setPkg(this.get(transPackage2));
-			tpc.setStatus(3);
+			tpc.setStatus(0);
 			transPackageContentDao.addTransPackageContent(tpc);
+			System.out.println("sasda");
 			System.out.println(tpc);
 		}
+	}
+	
+	public boolean  unpackTransPackage(String packageId)
+	{
+		List<ExpressSheet> list=null;
+		TransPackage tp=null;
+		tp=this.get(packageId);
+		tp.setStatus(3);
+		this.changeStatus(tp);
+		System.out.println(tp.getStatus());
+		if(tp.getStatus()==3)
+		list=transPackageContentDao.getAllExpressSheet(packageId);
+		for(ExpressSheet es: list )
+		{
+			es.setStatus(2);
+			expressSheetDao.addExpressSheet(es);
+		}
+		/*for(ExpressSheet es: list )
+		{
+			System.out.println(es.getStatus());
+		}*/
+		return true;
 	}
 }
