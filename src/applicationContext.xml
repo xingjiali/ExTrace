@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 	http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -16,8 +18,7 @@
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
-	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
 		<property name="configLocation" value="classpath:ExTrace.cfg.xml">
 		</property>
 		<property name="hibernateProperties">
@@ -41,8 +42,7 @@
 	</bean>
 
 	<!-- 配置事务管理器 -->
-	<bean id="transactionManager"
-		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 	<tx:annotation-driven transaction-manager="transactionManager"
@@ -71,12 +71,15 @@
 	<bean id="transPackageDao" class="ts.daoImpl.TransPackageDao">
 	  	<property name="sessionFactory" ref="sessionFactory"></property>
 	    <property name="regionDao" ref="regionDao"></property>
+		<property name="transPackageContentDao" ref="transPackageContentDao"></property>
+		 <property name="expressSheetDao" ref="expressSheetDao"></property>
 	</bean>
 	<bean id="transHistoryDao" class="ts.daoImpl.TransHistoryDao">
 		<property name="sessionFactory" ref="sessionFactory"></property>
 	</bean>
-	<bean id="transPackageContentDao" class="ts.daoImpl.TransPackageContentDao">
+	<bean id="transPackageContentDao" class="ts.daoImpl.TransPackageContentDao">	   
 		<property name="sessionFactory" ref="sessionFactory"></property>
+		
 	</bean>
 
 	<!-- REST服务的注解例子 -->

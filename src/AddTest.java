@@ -1,16 +1,32 @@
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.apache.catalina.webresources.AbstractArchiveResource;
+import org.apache.cxf.jaxrs.provider.json.utils.JSONUtils;
+import org.apache.cxf.service.invoker.SessionFactory;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
+import org.codehaus.jettison.json.JSONArray;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import ts.daoBase.BaseDao;
 import ts.daoImpl.CustomerInfoDao;
 import ts.daoImpl.PackageRouteDao;
+import ts.daoImpl.RegionDao;
 import ts.daoImpl.TransPackageContentDao;
 import ts.daoImpl.TransPackageDao;
 import ts.daoImpl.UserInfoDao;
@@ -20,6 +36,7 @@ import ts.model.PackageRoute;
 import ts.model.TransPackage;
 import ts.model.TransPackageContent;
 import ts.model.UserInfo;
+import ts.serviceImpl.DomainService;
 
 /**|
  * 
@@ -39,40 +56,45 @@ import ts.model.UserInfo;
 @ContextConfiguration("classpath:applicationContext.xml")
 public class AddTest {
 
-//	@Resource
-//	private SessionFactory sessionFactory;
-//	public SessionFactory setSessionFactory(){
-//		return sessionFactory;
-//	}
-//	@Test 
-//	public void fun(){
-//		Configuration configuration = new Configuration() ;
-//		configuration.configure("ExTrace.cfg.xml");
-//		try{
-//			SessionFactory sessionFactory = configuration.buildSessionFactory();
-//			System.out.println(sessionFactory);
-//		}catch(Exception e){
-//			e.printStackTrace();
-//		}
-//	}
+	/*@Resource
+	private SessionFactory sessionFactory;
+	public SessionFactory setSessionFactory(){
+		return sessionFactory;
+	}
+	@Test 
+	public void fun2(){
+		Configuration configuration = new Configuration() ;
+		configuration.configure("ExTrace.cfg.xml");
+		try{
+			SessionFactory sessionFactory = configuration.buildSessionFactory();
+			System.out.println(sessionFactory);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}*/
 	
-//	@Resource
-//	SessionFactory sessionFactory;
-//	
-//	@Test
-//	public void fun(){
-//		System.out.println(sessionFactory);
-//	}
+/*	@Resource
+	SessionFactory sessionFactory;
+	
+	@Test
+	public void fun1(){
+		System.out.println(sessionFactory);
+	}*/
+	
+	
 	@Resource
-	CustomerInfoDao customerInfoDao;
+	RegionDao    regionDao;
 	@Resource
-	TransPackageDao transPackageDao;
-	@Resource
-	UserInfoDao userInfoDao;
+	CustomerInfoDao customerInfoDao;		
 	@Resource
 	PackageRouteDao pkgRouteDao;
 	@Resource
-	TransPackageContentDao transPkgConDao;
+	TransPackageDao transPackageDao;
+	@Resource
+	TransPackageContentDao transPackageContentDao;
+	@Resource
+	UserInfoDao userInfoDao;
+
 	@Test
 	public void fun(){
 		/*PackageRoute pr = new PackageRoute();
@@ -99,19 +121,117 @@ public class AddTest {
 		pr.setPkg(tp);
 		pr.setX((float)21.3213);
 		pr.setY((float)42.2312);
-		packageRD.addPackageRoute(pr);*/
+		packageRD.addPackageRoute(pr);
+		
 		List<PackageRoute> pkgRouteList =  pkgRouteDao.findPkgRoute("1");
 		System.out.println(pkgRouteList.size());
-		/*System.out.println(transPackageDao.getDestination("1111112222"));*/
-	/*	CustomerInfo cus = customerInfoDao.get(1);
-		System.out.println(cus.getName());*/
 		
-		/*CustomerInfo customer = new CustomerInfo();
+		System.out.println(transPackageDao.getDestination("1111112222"));
+		
+		CustomerInfo cus = customerInfoDao.get(1);
+		System.out.println(cus.getName());
+		
+		CustomerInfo customer = new CustomerInfo();
 		customer.setAddress("郑州市高新区科学大道100号郑州大学新校区松园");
 		customer.setDepartment("#19-"
 				+ "");
 		customer.setName("zongzan");
 		customer.setPostCode(450001);
 		customerInfoDao.save(customer);*/
+		
+		/**
+		 * UserInfoDao
+		 */
+		//System.out.println(userInfoDao.checkUserByID(11, "user11"));
+		/*UserInfo ui=new UserInfo();
+		ui.setName("lili");
+		ui.setPWD("123");
+		ui.setTelCode("13523839302");
+		ui.setStatus(0);
+		ui.setTransPackageID("1111112234");
+		ui.setReceivePackageID("1111112235");
+		ui.setDelivePackageID("1111112236");
+		ui.setDptID("11232322");
+		ui.setURull(0);
+		userInfoDao.addUser(ui);*/
+		//userInfoDao.getReceivePackageId(11);
+		//userInfoDao.getDelivePackageId(11);
+		//userInfoDao.getTransPackageId(11);
+		//userInfoDao.getDptId(11);
+		//userInfoDao.getTel(11);
+		/*UserInfo ui=new UserInfo();
+		ui.setUID(14);
+		ui.setName("jiajia");
+		ui.setPWD("123456");
+		ui.setTelCode("13523839302");
+		ui.setStatus(0);
+		ui.setTransPackageID("1111112234");
+		ui.setReceivePackageID("1111112235");
+		ui.setDelivePackageID("1111112236");
+		ui.setDptID("11232322");
+		ui.setURull(0);
+		userInfoDao.updateUser(ui);*/
+		//userInfoDao.getUserByDPid("1111113331");
+		
+		
+		/**
+		 * TransPackageDao
+		 */
+		//System.out .println(transPackageDao.getRegionDao());
+		//transPackageDao.setRegionDao(regionDao);
+		//transPackageDao.getDestination("1111112222");
+		//transPackageDao.getTransPackage("1111112222");
+		//transPackageDao.getAllPackageId("2");
+		//System.out.println(transPackageDao.getAllPackage("2"));
+		//System.out.println(transPackageDao.getAllPackageId("2"));
+		//transPackageDao.takeTransPackage("1111112233","1111115555");
+		transPackageDao.unpackTransPackage("1111115555");
+		
+		/**
+		 * TransPackageContentDao
+		 */
+		//transPackageContentDao.get("1", "1111112233");
+		//transPackageContentDao.getSn("2", "1111112222");
+		//transPackageContentDao.delete("1", "1111112222");
+		//transPackageContentDao.getListPackageContent("1");
+		//transPackageContentDao.getAllExpressSheetId("1111112233");
+		//transPackageContentDao.getAllExpressSheet("1111112233");
+		
+		
 	}
+	/*@Test
+	public void fun(){
+		HttpClient a = new DefaultHttpClient();
+		HttpPost post = new HttpPost("http://localhost:8080/Extrace/REST/Domain/deliveExpress");
+//		post.setHeader("User-Agent", "Mozilla/4.5");
+//		post.addHeader("Content-type","application/json");
+//		post.setHeader("Accept","application/json");
+		List<String> list = new ArrayList<>();
+		list.add("1");
+		list.add("2");
+//		StringEntity entity1 = null;
+//
+//		StringEntity entity2 = null;
+//		try {
+//			entity1 = new StringEntity(JsonUtils.toJson(list),"UTF-8");
+//			entity2 = new StringEntity(JsonUtils.toJson("1111115555"));
+//		} catch (UnsupportedEncodingException e1) {
+//			e1.printStackTrace();
+//		}
+//		entity1.setContentType("application/json");
+//		entity2.setContentType("application/json");
+//		post.setEntity(entity1);
+//		post.setEntity(entity2);
+		HttpParams para = post.getParams();
+		para.setParameter("list", list);
+		para.setParameter("PackId", "1111115555");
+		post.setParams(para);
+		try{
+			HttpResponse res = a.execute(post);
+			System.out.println(EntityUtils.toString(res.getEntity()));
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+	}*/
 }

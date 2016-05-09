@@ -3,11 +3,9 @@ package ts.daoImpl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.jasper.tagplugins.jstl.core.Remove;
 import org.hibernate.criterion.Restrictions;
 
 import ts.daoBase.BaseDao;
-import ts.model.TransPackage;
 import ts.model.UserInfo;
 /**
  * 
@@ -61,5 +59,13 @@ public class UserInfoDao extends BaseDao<UserInfo, Integer> {
 		UserInfo ui = get(uid);
 		System.out.println(ui.getTelCode());
 		return ui.getTelCode();
+	}
+	public UserInfo getUserByDPid(String dpId)
+	{
+		List<UserInfo> ui=new ArrayList<UserInfo>();
+		ui=super.findBy("UID", true, Restrictions.sqlRestriction("DelivePackageID = '"+ dpId + "'"));
+		System.out.println(ui.toString());
+		return ui.get(0);
+		
 	}
 }

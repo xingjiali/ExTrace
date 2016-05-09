@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import ts.daoImpl.ExpressSheetDao;
@@ -17,9 +16,9 @@ import ts.daoImpl.TransPackageDao;
 import ts.daoImpl.UserInfoDao;
 import ts.model.ExpressSheet;
 import ts.model.PackageRoute;
-import ts.model.TransHistory;
 import ts.model.TransPackage;
 import ts.model.TransPackageContent;
+import ts.model.UserInfo;
 import ts.serviceInterface.IDomainService;
 
 public class DomainService implements IDomainService {
@@ -215,7 +214,30 @@ public class DomainService implements IDomainService {
 	@Override
 	public Response DispatchExpressSheet(String id, int uid) {
 		// TODO Auto-generated method stub
-		return null;
+		try{
+			String pkgId = userInfoDao.get(uid).getTransPackageID();
+			ExpressSheet nes = expressSheetDao.get(id);
+			if(nes.getStatus() != 2){
+				return Response.ok("快件运单状态错误!无法交付").header("EntityClass", "E_ExpressSheet").build(); 
+			}
+			
+			if(transPackageContentDao.getSn(id, pkgId) == 0){
+				//临时的一个处理方式,断路了包裹的传递过程,自己的货篮倒腾一下
+				MoveExpressBetweenPackage(id, userInfoDao.get(uid).getReceivePackageID(),pkgId);
+				return Response.ok("快件运单状态错误!\n快件信息没在您的派件包裹中!").header("EntityClass", "E_ExpressSheet").build(); 
+			}
+				
+			nes.setStatus(3);
+			expressSheetDao.save(nes);
+			//从派件包裹中删除
+			MoveExpressFromPackage(nes.getID(),pkgId);
+			//快件没有历史记录,很难给出收件和交付的记录
+			return Response.ok(nes).header("EntityClass", "ExpressSheet").build(); 
+		}
+		catch(Exception e)
+		{
+			return Response.serverError().entity(e.getMessage()).build(); 
+		}
 	}
 
 	public boolean MoveExpressIntoPackage(String id, String targetPkgId) {
@@ -347,6 +369,59 @@ public class DomainService implements IDomainService {
 	public List<PackageRoute> getPackageRoutePos(String ExpressSheetid, String time) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<ExpressSheet> deliveExpress(List<String> list, String PackId) {
+		// TODO Auto-generated method stub
+       // System.out.println(list.get(0));
+        System.out.println(PackId);
+		UserInfo ui=new UserInfo();
+		ui=userInfoDao.getUserByDPid(PackId);
+		for(String expressId:list)
+		{
+			TransPackageContent tpc=new TransPackageContent();
+			ExpressSheet es=null;
+	    	es=expressSheetDao.get(expressId);	    	
+	    	es.setDeliver(ui.getName());
+	    	Date date=new Date();
+	    	es.setDeliveTime(date);
+	    	es.setStatus(4);
+	    	System.out.println(es);
+	    	tpc.setExpress(es);
+			tpc.setPkg(transPackageDao.get(PackId));
+			tpc.setStatus(5);
+			System.out.println(tpc);
+			transPackageContentDao.addTransPackageContent(tpc);
+		}
+		System.out.println(transPackageContentDao.getAllExpressSheet(PackId));
+		return transPackageContentDao.getAllExpressSheet(PackId);
+	}
+
+	@Override
+	public ExpressSheet signExpress(String expressId) {
+		// TODO Auto-generated method stub
+		ExpressSheet es=new ExpressSheet();
+		es=expressSheetDao.get(expressId);
+		Date date=new Date();
+		es.setAccepter("xingjiali");
+		es.setAccepteTime(date);
+		//System.out.println(es);
+		expressSheetDao.addExpressSheet(es);
+		return es;
+	}
+
+	@Override
+	public Response unpackaTransPackage(String packageId) {
+		// TODO Auto-generated method stub
+		try{
+			TransPackage tp=new TransPackage();
+			transPackageDao.unpackTransPackage(packageId);
+			tp=transPackageDao.get(packageId);
+			return Response.ok(tp).header("EntityClass", "TransPackage").build(); 
+		}catch(Exception e){
+			return Response.serverError().entity(e.getMessage()).build();
+		}
 	}
 
 	

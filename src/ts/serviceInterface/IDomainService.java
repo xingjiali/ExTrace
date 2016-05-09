@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -98,5 +99,24 @@ public interface IDomainService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/getPackageRoutePos/{ExpressSheetid}/{time}")
     public List<PackageRoute> getPackageRoutePos(@PathParam("ExpressSheetid")String ExpressSheetid, @PathParam("time")String time);
+    
+    //快件派送
+    @POST
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("/deliveExpress")
+    public List<ExpressSheet> deliveExpress(@FormParam("list")List<String> list,@FormParam("PackId")String PackId);
+    
+    //签收
+    @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Path("/signExpress/{expressId}")
+    public ExpressSheet  signExpress(@PathParam("expressId")String expressId);
+    
+    //拆包
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Path("/unpackaTransPackage/{packageId}")
+    public Response unpackaTransPackage(@PathParam("packageId")String packageId);
     
 }

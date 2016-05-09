@@ -10,7 +10,9 @@ public class PackageRouteDao extends BaseDao<PackageRoute, String>{
 	public PackageRouteDao(){
 		super(PackageRoute.class);
 	}
-	
+	public void setTransPackageContentDao(TransPackageContentDao dao) {
+		this.transPkgContDao = dao;
+	}
 	public void addPackageRoute(PackageRoute pkgRoute){
 		save(pkgRoute);
 	}
