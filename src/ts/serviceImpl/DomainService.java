@@ -1,23 +1,33 @@
 package ts.serviceImpl;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.logging.Log;
+
+import com.google.gson.Gson;
+
 import ts.daoImpl.ExpressSheetDao;
+import ts.daoImpl.PackageRouteDao;
 import ts.daoImpl.TransHistoryDao;
 import ts.daoImpl.TransPackageContentDao;
 import ts.daoImpl.TransPackageDao;
 import ts.daoImpl.UserInfoDao;
 import ts.model.ExpressSheet;
+import ts.model.PackageRoute;
 import ts.model.TransHistory;
 import ts.model.TransPackage;
 import ts.model.TransPackageContent;
 import ts.serviceInterface.IDomainService;
+import ts.smodel.History;
+import ts.smodel.LocXY;
 
 public class DomainService implements IDomainService {
 	
@@ -25,7 +35,16 @@ public class DomainService implements IDomainService {
 	private TransPackageDao transPackageDao;
 	private TransHistoryDao transHistoryDao;
 	private TransPackageContentDao transPackageContentDao;
+	private PackageRouteDao packageRouteDao;
 	
+	public PackageRouteDao getPackageRouteDao() {
+		return packageRouteDao;
+	}
+
+	public void setPackageRouteDao(PackageRouteDao packageRouteDao) {
+		this.packageRouteDao = packageRouteDao;
+	}
+
 	private UserInfoDao userInfoDao;
 	
 	public ExpressSheetDao getExpressSheetDao() {
@@ -118,7 +137,7 @@ public class DomainService implements IDomainService {
 
 	@Override
 	public List<ExpressSheet> getExpressListInPackage(String packageId){
-		List<ExpressSheet> list = new ArrayList<ExpressSheet>();
+		List<ExpressSheet> list = null;
 		list = expressSheetDao.getListInPackage(packageId);
 		return list;		
 	}
@@ -154,6 +173,7 @@ public class DomainService implements IDomainService {
 //			pkg_add.setPkg(transPackageDao.get(pkgId));
 //			pkg_add.setExpress(nes);
 //			nes.getTransPackageContent().add(pkg_add);
+			System.out.println(nes.toString());
 			expressSheetDao.save(nes);
 			//放到收件包裹中
 			MoveExpressIntoPackage(nes.getID(),pkgId);
@@ -287,7 +307,13 @@ public class DomainService implements IDomainService {
 	@Override
 	public Response getTransPackage(String id) {
 		TransPackage es = transPackageDao.get(id);
-		return Response.ok(es).header("EntityClass", "TransPackage").build(); 
+		ts.smodel.TransPackage stp = new ts.smodel.TransPackage();
+		stp.setCreateTime(es.getCreateTime());
+		stp.setID(es.getID());
+		stp.setSourceNode(es.getSourceNode());
+		stp.setTargetNode(es.getTargetNode());
+		stp.setStatus(es.getStatus());
+		return Response.ok(stp).header("EntityClass", "TransPackage").build(); 
 	}
 
 	@Override
@@ -295,7 +321,7 @@ public class DomainService implements IDomainService {
 		try{
 			TransPackage npk = new TransPackage();
 			npk.setID(id);
-			//npk.setStatus(value);
+			npk.setStatus(TransPackage.STATUS.RECEIVE);
 			npk.setCreateTime(new Date());
 			transPackageDao.save(npk);
 			return Response.ok(npk).header("EntityClass", "TransPackage").build(); 
@@ -316,5 +342,186 @@ public class DomainService implements IDomainService {
 		{
 			return Response.serverError().entity(e.getMessage()).build(); 
 		}
+	}
+
+	@Override
+	public Response saveRoutePos(String packageId, double x, double y) {
+		// TODO Auto-generated method stub
+		PackageRoute pr = new PackageRoute();
+		try{
+			pr.setPkg(transPackageDao.get(packageId));
+			pr.setX((float)x);
+			pr.setY((float)y);
+			pr.setTm(new Date());
+			packageRouteDao.save(pr);
+			return Response.ok().header("EntityClass", "R_TransPackage").build(); 
+		}
+		catch(Exception e)
+		{
+			return Response.serverError().entity(e.getMessage()).build(); 
+		}
+	}
+
+	@Override
+	public String getPostCode(String pro, String city, String town) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public List<LocXY> getPackageRoutePos(String ExpressSheetid, String time) {			//有问题
+		// TODO Auto-generated method stub
+		List<PackageRoute> prList = packageRouteDao.findPkgRoute(ExpressSheetid);
+		List<LocXY> locItems = new ArrayList<LocXY>();
+		java.text.DateFormat df=new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		time = df.format(time);
+		java.util.Calendar c1=java.util.Calendar.getInstance();
+		java.util.Calendar c2=java.util.Calendar.getInstance();
+		try
+		{
+			c1.setTime(df.parse(time));
+			for(PackageRoute pr : prList){
+				c2.setTime(df.parse(pr.getTm().toString()));
+				if(c1.compareTo(c2) < 0){  
+					locItems.add(new LocXY(pr.getX(), pr.getY()));
+				}
+			}
+		}catch(java.text.ParseException e){
+			System.err.println("格式不正确");
+		}
+		return locItems;
+	}
+	@Override
+	public List<LocXY> getPackageRoutePos(String ExpressSheetid) {
+		// TODO Auto-generated method stub
+		List<PackageRoute> routeItems = packageRouteDao.findPkgRoute(ExpressSheetid);
+		System.out.println("routesize is:"+routeItems.size());
+		List<LocXY> locItems = new ArrayList<LocXY>();
+		for(PackageRoute pr : routeItems){
+			locItems.add(new LocXY((pr.getX()), pr.getY()));
+		}
+		System.out.println(locItems.get(0).toString());
+		return locItems;
+	}
+
+	@Override
+	public String getString(LocXY local) {
+		// TODO Auto-generated method stub
+		System.out.println(local.toString());
+		return	 "haha";
+	}
+
+	@Override
+	public Response fun(String shihu) {
+		// TODO Auto-generated method stub
+		
+		return Response.ok(shihu + "shoudaole").build();
+	}
+
+	@Override
+	public Response putExpressIntoPkg(String ExpressSheetid, String packageId) {
+		// TODO Auto-generated method stub
+		try{
+			TransPackageContent transPackageContent = new TransPackageContent();
+			transPackageContent.setPkg(transPackageDao.get(packageId));
+			transPackageContent.setStatus(0);
+			transPackageContent.setExpress(expressSheetDao.get(ExpressSheetid));
+			transPackageContentDao.save(transPackageContent);
+			
+			return Response.ok(transPackageContent).build(); 
+		}
+		catch(Exception e)
+		{
+			return Response.serverError().entity(e.getMessage()).build(); 
+		}
+	}
+
+	@Override
+	public Response unBoxingPackage(String packageId) {
+		// TODO Auto-generated method stub
+		try{
+			TransPackage td = transPackageDao.get(packageId);
+			td.setStatus(td.getStatus() + 1);
+			transPackageDao.update(td);
+			return Response.ok().build(); 
+		}
+		catch(Exception e)
+		{
+			return Response.serverError().entity(e.getMessage()).build(); 
+		}
+	}
+
+	@Override
+	public Response unBoxingExpressSheet(String expressSheetId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Response getTransHistroy(String expressSheetId) {
+		// TODO Auto-generated method stub
+		List<TransHistory> history = new ArrayList<TransHistory>();
+		try{
+			List<TransPackage> pkgs = transPackageDao.getAllPackage(expressSheetId);
+			for(TransPackage item : pkgs){
+				history.addAll(transHistoryDao.getPackageHistory(item.getID()));
+			}
+			return Response.ok(history).build(); 
+		}
+		catch(Exception e)
+		{
+			return Response.serverError().entity(e.getMessage()).build(); 
+		}
+	}
+	
+	/**
+	 * 	揽收后，由于uidFrom的值是没有的，我们设‘0’为这时的uidFrom
+	 * 	派送时，没有uidTo,我们设‘1’为这时的uidTo
+	 */
+	@Override
+	public Response saveTransHistory(History history, int status) {
+		// TODO Auto-generated method stub
+		TransHistory th = new TransHistory();
+		th.setPkg(transPackageDao.get(history.getPackageID()));
+		th.setUIDFrom(history.getUidFrom());
+		th.setX(history.getX());
+		th.setY(history.getY());
+		if(status == TransPackage.STATUS.RECEIVE){
+			th.setUIDFrom(0);
+			th.setUIDTo(history.getUidTo());
+		}
+		else if(status == TransPackage.STATUS.DELIVERYPKG){
+			th.setUIDFrom(history.getUidFrom());
+			th.setUIDTo(0);
+		}
+		else{
+			th.setUIDFrom(history.getUidFrom());
+			th.setUIDTo(history.getUidTo());
+		}
+		try {
+			transHistoryDao.save(th);
+			return Response.ok("已更新历史").build();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			return Response.serverError().entity(e.getMessage()).build();
+		}
+	}
+
+	@Override
+	public Response savePreFillList(ExpressSheet obj) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Response FillList(ExpressSheet obj) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ExpressSheet> getPreFillListInPackage(String packageId) {
+		// TODO Auto-generated method stub
+		return expressSheetDao.getPreFillListInPackage(packageId);
 	}
 }

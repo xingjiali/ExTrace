@@ -18,6 +18,7 @@ import java.util.Date;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+
 @Entity
 @org.hibernate.annotations.Proxy(lazy=false)
 @Table(name="TransPackage")
@@ -49,7 +50,7 @@ public class TransPackage implements Serializable {
 	@Column(name="Status", nullable=true, length=4)	
 	private Integer status;
 	
-	@OneToMany(mappedBy="pkg", targetEntity=PackageRoute.class)	
+	@OneToMany(mappedBy="pkg", targetEntity=PackageRoute.class,fetch=FetchType.EAGER)	
 	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE, org.hibernate.annotations.CascadeType.LOCK})	
 	@org.hibernate.annotations.LazyCollection(org.hibernate.annotations.LazyCollectionOption.TRUE)	
 	private java.util.Set<PackageRoute> route = new java.util.HashSet<PackageRoute>();
@@ -58,12 +59,12 @@ public class TransPackage implements Serializable {
 	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE, org.hibernate.annotations.CascadeType.LOCK})	
 	private UsersPackage user;
 	
-	@OneToMany(mappedBy="pkg", targetEntity=TransPackageContent.class)	
+	@OneToMany(mappedBy="pkg", targetEntity=TransPackageContent.class,fetch=FetchType.EAGER)	
 	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE, org.hibernate.annotations.CascadeType.LOCK})	
 	@org.hibernate.annotations.LazyCollection(org.hibernate.annotations.LazyCollectionOption.TRUE)	
 	private java.util.Set<TransPackageContent> content = new java.util.HashSet<TransPackageContent>();
 	
-	@OneToMany(mappedBy="pkg", targetEntity=TransHistory.class)	
+	@OneToMany(mappedBy="pkg", targetEntity=TransHistory.class,fetch=FetchType.EAGER)	
 	@org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE, org.hibernate.annotations.CascadeType.LOCK})	
 	@org.hibernate.annotations.LazyCollection(org.hibernate.annotations.LazyCollectionOption.TRUE)	
 	private java.util.Set<TransHistory> history = new java.util.HashSet<TransHistory>();
@@ -137,7 +138,6 @@ public class TransPackage implements Serializable {
 		return content;
 	}
 	
-	
 	public void setHistory(java.util.Set<TransHistory> value) {
 		this.history = value;
 	}
@@ -192,4 +192,13 @@ public class TransPackage implements Serializable {
 		return _saved;
 	}
 	
+	public static final class STATUS{
+		public static final int RECEIVE= 0;//新建
+		public static final int BOXING = 1;//打包
+		public static final int TRASN = 2;//转运
+		
+		public static final int SOURTPPKG = 3;//分拣货篮
+		public static final int RECEIVEPKG = 4;//揽收货篮
+		public static final int DELIVERYPKG = 5;//派送货篮
+	}
 }

@@ -35,10 +35,23 @@ public class ExpressSheetDao extends BaseDao<ExpressSheet,String> {
 	}
 
 	//获得指定包裹ID的所有快件列表
+	/*Restrictions类的静态方法返回值作为参数,可以代替SQl语句中的“>、=、<、!”等
+	 * */
 	public List<ExpressSheet> getListInPackage(String pkg_id) {	
-		String sql = "{alias}.ID in (select ExpressID from TransPackageContent where Status = 0 and PackageID = '"+pkg_id+"')";
+		String sql = "{alias}.ID in (select ExpressID from TransPackageContent where Status = 0 and Type = 0 and PackageID = '"+pkg_id+"')";
 		List<ExpressSheet> list = new ArrayList<ExpressSheet>();
 		list = findBy("ID", true, Restrictions.sqlRestriction(sql));		
 		return list;
+	}
+	
+	public List<ExpressSheet> getPreFillListInPackage(String pkg_id) {	
+		String sql = "{alias}.ID in (select ExpressID from TransPackageContent where Status = 0 and Type = 1 and PackageID = '"+pkg_id+"')";
+		List<ExpressSheet> list = new ArrayList<ExpressSheet>();
+		list = findBy("ID", true, Restrictions.sqlRestriction(sql));		
+		return list;
+	}
+	
+	public void addExpressSheet(ExpressSheet sh){
+		save(sh);
 	}
 }
