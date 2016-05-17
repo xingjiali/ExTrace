@@ -8,6 +8,7 @@ import ts.daoBase.BaseDao;
 import ts.model.TransNode;
 
 public class TransNodeDao extends BaseDao<TransNode, String>{
+
 	public TransNodeDao(){
 		super(TransNode.class);
 	}
@@ -16,5 +17,7 @@ public class TransNodeDao extends BaseDao<TransNode, String>{
         Assert.hasText(region_code);
         return findBy("regionCode", region_code, "nodeName", true);
 	}
-
+	public String getRegionString(String id){
+		return findBy("id",id,null,false).get(0).getNodeName();
+	}
 }

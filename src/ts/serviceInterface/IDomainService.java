@@ -13,9 +13,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.sun.xml.bind.v2.runtime.Name;
+
 import ts.model.ExpressSheet;
 import ts.model.PackageRoute;
 import ts.model.TransPackage;
+import ts.smodel.NamePair;
 
 @Path("/Domain")	//业务操作
 public interface IDomainService {
@@ -34,6 +37,14 @@ public interface IDomainService {
     @Path("/getExpressListInPackage/PackageId/{PackageId}") 
 	public List<ExpressSheet> getExpressListInPackage(@PathParam("PackageId")String packageId);
 
+    //@xingjiali
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Path("/getExpressListInPackage2/PackageId/{PackageId}") 
+	public List<ExpressSheet> getExpressListInPackage2(@PathParam("PackageId")String packageId);
+
+    
+    
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Path("/getExpressSheet/{id}") 
@@ -118,5 +129,10 @@ public interface IDomainService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/unpackaTransPackage/{packageId}")
     public Response unpackaTransPackage(@PathParam("packageId")String packageId);
+    //得到tranPackagenode的发送地区名字和接收名字
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/getTransNamePair")
+    public Response getTransNamePair(NamePair namePair);
     
 }

@@ -11,15 +11,18 @@ import javax.ws.rs.core.Response;
 import ts.daoImpl.ExpressSheetDao;
 import ts.daoImpl.PackageRouteDao;
 import ts.daoImpl.TransHistoryDao;
+import ts.daoImpl.TransNodeDao;
 import ts.daoImpl.TransPackageContentDao;
 import ts.daoImpl.TransPackageDao;
 import ts.daoImpl.UserInfoDao;
 import ts.model.ExpressSheet;
 import ts.model.PackageRoute;
+import ts.model.TransNode;
 import ts.model.TransPackage;
 import ts.model.TransPackageContent;
 import ts.model.UserInfo;
 import ts.serviceInterface.IDomainService;
+import ts.smodel.NamePair;
 
 public class DomainService implements IDomainService {
 	
@@ -28,6 +31,8 @@ public class DomainService implements IDomainService {
 	private TransHistoryDao transHistoryDao;
 	private TransPackageContentDao transPackageContentDao;
 	private PackageRouteDao packageRouteDao;
+	private TransNodeDao transNodeDao;
+	
 	
 	public PackageRouteDao getPackageRouteDao() {
 		return packageRouteDao;
@@ -424,5 +429,20 @@ public class DomainService implements IDomainService {
 		}
 	}
 
+	@Override
+	public List<ExpressSheet> getExpressListInPackage2(String packageId) {
+		// TODO Auto-generated method stub
+		List<ExpressSheet> list = new ArrayList<ExpressSheet>();
+		list = expressSheetDao.getListInPackage2(packageId);
+		return list;
+	}
+
+	@Override
+	public Response getTransNamePair(NamePair namePair) {
+		NamePair name = new NamePair();
+		name.setA(transNodeDao.getRegionString(name.getA()));
+		name.setB(transNodeDao.getRegionString(name.getB()));
+		return Response.ok(name).header("EntityClass", "TranNode_name").build(); 
+	}
 	
 }

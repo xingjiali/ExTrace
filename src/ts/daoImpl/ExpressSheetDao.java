@@ -43,6 +43,12 @@ public class ExpressSheetDao extends BaseDao<ExpressSheet,String> {
 		list = findBy("ID", true, Restrictions.sqlRestriction(sql));		
 		return list;
 	}
+	public List<ExpressSheet> getListInPackage2(String pkg_id) {	
+		String sql = "{alias}.ID in (select ExpressID from TransPackageContent where Status = 1 and PackageID = '"+pkg_id+"')";
+		List<ExpressSheet> list = new ArrayList<ExpressSheet>();
+		list = findBy("ID", true, Restrictions.sqlRestriction(sql));		
+		return list;
+	}
 	public void addExpressSheet(ExpressSheet sh){
 		save(sh);
 	}
